@@ -4,11 +4,9 @@ import cookieParser from "cookie-parser";
 
 const app = express();
 
-const allowedOrigins = process.env.CORS_ORIGIN
-  ? process.env.CORS_ORIGIN.split(",")
-  : [];
+const allowedOrigins = process.env.CORS_ORIGIN?.split(",") || [];
 
-console.log(allowedOrigins);
+// console.log(allowedOrigins);
 
 app.use(
   cors({
@@ -25,6 +23,11 @@ app.use(
     credentials: true,
   })
 );
+
+// health check (MANDATORY)
+app.get("/", (req, res) => {
+  res.status(200).json({ message: "API is running" });
+});
 
 app.use(express.json({ limit: "16kb" }));
 app.use(express.urlencoded({ extended: true }));
