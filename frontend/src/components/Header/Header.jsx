@@ -2,6 +2,7 @@ import React from "react";
 import { useSelector } from "react-redux";
 import { Logo, LogoutBtn } from "../index.js";
 import { useNavigate } from "react-router";
+import { Link } from "react-router";
 
 const Header = () => {
   const { status: authStatus } = useSelector((state) => state.auth);
@@ -41,7 +42,9 @@ const Header = () => {
       <div className="max-w-7xl mx-auto px-6 py-5 flex justify-between items-center">
         {/* Logo */}
         <div className="flex items-center space-x-2">
-          <Logo />
+          <Link to={"/"}>
+            <Logo />
+          </Link>
         </div>
 
         {/* Nav Items */}

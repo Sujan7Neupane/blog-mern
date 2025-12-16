@@ -47,6 +47,14 @@ const HomePage = () => {
     );
   }
 
+  if (!posts) {
+    return (
+      <div className="w-full min-h-screen flex items-center justify-cente">
+        No posts available. Please add Posts.
+      </div>
+    );
+  }
+
   // Not logged in
   if (!userData) {
     return (
