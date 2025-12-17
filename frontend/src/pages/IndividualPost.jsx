@@ -21,7 +21,7 @@ const IndividualPost = () => {
       ? post.postedBy._id === userData._id
       : false;
 
-  console.log("INDIVIDUAL POST post:", post);
+  // console.log("INDIVIDUAL POST post:", post);
 
   useEffect(() => {
     if (!id) {
