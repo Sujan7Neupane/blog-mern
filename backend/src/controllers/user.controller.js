@@ -28,34 +28,60 @@ const getCookieOptions = () => ({
 
 // REGISTER
 const userRegister = asyncHandler(async (req, res) => {
-  const { fullName, username, email, password } = req.body;
+  const { name, username, email, password } = req.body;
 
-  if ([fullName, username, email, password].some((f) => !f?.trim())) {
-    throw new ApiError(400, "All fields are required!");
+  //   Checking empty fields
+  if (
+    [name, username, email, password].some(
+      (field) => !field || field.trim() === ""
+    )
+  ) {
+    throw new ApiError(400, "All fields are required");
   }
 
+  //   validating email
+  if (!validator.isEmail(email)) {
+    throw new ApiError(400, "Please enter a valid email");
+  }
+
+  //   checking password length
+  if (password.length < 8) {
+    throw new ApiError(400, "Please enter a strong password");
+  }
+
+  //   validating email existing
   const existingUser = await User.findOne({
-    $or: [{ username: username.toLowerCase() }, { email: email.toLowerCase() }],
+    $or: [{ username }, { email }],
   });
 
   if (existingUser) {
-    throw new ApiError(409, "User already exists");
+    throw new ApiError(400, "User already exists with username or email");
   }
 
   const user = await User.create({
-    fullName,
+    name,
     username: username.toLowerCase(),
-    email: email.toLowerCase(),
+    email,
     password,
   });
 
-  const createdUser = await User.findById(user._id).select(
+  const { accessToken, refreshToken } = await generateTokens(user._id);
+
+  const registeredUser = await User.findById(user._id).select(
     "-password -refreshToken"
   );
 
   return res
-    .status(201)
-    .json(new ApiResponse(201, createdUser, "User registered successfully!"));
+    .status(200)
+    .cookie("accessToken", accessToken, getCookieOptions())
+    .cookie("refreshToken", refreshToken, getCookieOptions())
+    .json(
+      new ApiResponse(
+        200,
+        { user: registeredUser },
+        "User Registered Successfully!"
+      )
+    );
 });
 
 // LOGIN

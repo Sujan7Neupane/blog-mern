@@ -14,18 +14,10 @@ const createPost = asyncHandler(async (req, res) => {
     return res.status(400).json({ message: "Featured image is required!" });
   }
 
-  const buffer = req.file.buffer;
-
-  const featuredImage = await new Promise((resolve, reject) => {
-    const uploadStream = cloudinary.uploader.upload_stream(
-      { folder: "posts", resource_type: "auto" },
-      (error, result) => {
-        if (error) reject(error);
-        else resolve(result);
-      }
-    );
-    streamifier.createReadStream(buffer).pipe(uploadStream);
-  });
+  const featuredImage = await uploadOnCloudinary(req.file.path);
+  if (!featuredImage) {
+    return res.status(500).json({ message: "Failed to upload image" });
+  }
 
   const post = await Post.create({
     title: title.trim(),
