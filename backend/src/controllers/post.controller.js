@@ -35,7 +35,9 @@ const createPost = asyncHandler(async (req, res) => {
     title: title.trim(),
     content,
     status,
-    featuredImage: featuredImage.url || "",
+    featuredImage: featuredImage.url
+      ? featuredImage.url.replace("http://", "https://")
+      : "",
     postedBy: req.user._id,
   });
 
