@@ -6,6 +6,7 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 
 const createPost = asyncHandler(async (req, res) => {
   //get details from front-end
+  console.log("USER:", req.user);
   const { title, content, status } = req.body;
 
   const fields = { title, content, status };
