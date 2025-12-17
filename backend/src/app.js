@@ -4,35 +4,44 @@ import cookieParser from "cookie-parser";
 
 const app = express();
 
-const allowedOrigins = process.env.CORS_ORIGIN?.split(",") || [];
-
-// console.log(allowedOrigins);
+/**
+ * Parse allowed origins from env
+ */
+const allowedOrigins = process.env.CORS_ORIGIN
+  ? process.env.CORS_ORIGIN.split(",")
+  : [];
 
 app.use(
   cors({
-    origin: function (origin, callback) {
-      // Allow requests without origin (Postman, server-to-server)
+    origin: (origin, callback) => {
+      // Allow non-browser requests (Postman, server-to-server)
       if (!origin) return callback(null, true);
 
-      if (allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error("Not allowed by CORS"));
+      // Allow all origins in development (optional but useful)
+      if (process.env.NODE_ENV === "development") {
+        return callback(null, true);
       }
+
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+
+      return callback(new Error(`CORS blocked for origin: ${origin}`));
     },
     credentials: true,
   })
 );
 
-// health check (MANDATORY)
+// Middleware order matters
+app.use(express.json({ limit: "16kb" }));
+app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
+app.use(express.static("public"));
+
+// Health check (MANDATORY)
 app.get("/", (req, res) => {
   res.status(200).json({ message: "API is running" });
 });
-
-app.use(express.json({ limit: "16kb" }));
-app.use(express.urlencoded({ extended: true }));
-app.use(express.static("public"));
-app.use(cookieParser());
 
 // Routes
 import userRouter from "./routes/user.routes.js";

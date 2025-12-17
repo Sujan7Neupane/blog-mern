@@ -63,16 +63,20 @@ const createPost = asyncHandler(async (req, res) => {
 
 const getAllActivePost = asyncHandler(async (_req, res) => {
   const activePosts = await Post.find({ status: "Active" })
-    .populate("postedBy", "username") // populate username
+    .populate("postedBy", "username")
     .sort({ createdAt: -1 });
-
-  if (!activePosts.length) {
-    throw new ApiError(404, "No posts available!");
-  }
 
   return res
     .status(200)
-    .json(new ApiResponse(200, activePosts, "Posts fetched successfully!"));
+    .json(
+      new ApiResponse(
+        200,
+        activePosts,
+        activePosts.length
+          ? "Posts fetched successfully!"
+          : "No posts available!"
+      )
+    );
 });
 
 const getAllPost = asyncHandler(async (_req, res) => {

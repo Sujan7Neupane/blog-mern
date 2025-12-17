@@ -1,7 +1,17 @@
+import React from "react";
 import { createRoot } from "react-dom/client";
 
 import { Provider } from "react-redux";
 import store from "./store/store.js";
+
+import {
+  createBrowserRouter,
+  createRoutesFromElements,
+  Route,
+  RouterProvider,
+} from "react-router-dom";
+
+import App from "./App.jsx";
 import { AuthLayout } from "./components/index.js";
 import {
   LoginPage,
@@ -13,25 +23,16 @@ import {
   EditPosts,
 } from "./pages/index.js";
 
-import {
-  Route,
-  createBrowserRouter,
-  createRoutesFromElements,
-  RouterProvider,
-} from "react-router";
-
-import App from "./App.jsx";
-
 const router = createBrowserRouter(
   createRoutesFromElements(
     <Route path="/" element={<App />}>
-      {/* public routes */}
+      {/* Public routes */}
       <Route index element={<HomePage />} />
-      <Route path="/post/:id" element={<IndividualPost />} />
+      <Route path="post/:id" element={<IndividualPost />} />
 
-      {/* auth guest only (no login required) */}
+      {/* Guest-only routes */}
       <Route
-        path="/login"
+        path="login"
         element={
           <AuthLayout authentication={false}>
             <LoginPage />
@@ -40,7 +41,7 @@ const router = createBrowserRouter(
       />
 
       <Route
-        path="/register"
+        path="register"
         element={
           <AuthLayout authentication={false}>
             <SignupPage />
@@ -48,25 +49,27 @@ const router = createBrowserRouter(
         }
       />
 
-      {/* Requires login */}
+      {/* Protected routes */}
       <Route
-        path="/all-posts"
+        path="all-posts"
         element={
           <AuthLayout authentication={true}>
             <AllPosts />
           </AuthLayout>
         }
       />
+
       <Route
-        path="/add-posts"
+        path="add-posts"
         element={
           <AuthLayout authentication={true}>
             <AddPost />
           </AuthLayout>
         }
       />
+
       <Route
-        path="/update/:id"
+        path="update/:id"
         element={
           <AuthLayout authentication={true}>
             <EditPosts />
@@ -78,7 +81,9 @@ const router = createBrowserRouter(
 );
 
 createRoot(document.getElementById("root")).render(
-  <Provider store={store}>
-    <RouterProvider router={router} />
-  </Provider>
+  <React.StrictMode>
+    <Provider store={store}>
+      <RouterProvider router={router} />
+    </Provider>
+  </React.StrictMode>
 );

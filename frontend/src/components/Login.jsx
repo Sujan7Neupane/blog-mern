@@ -4,7 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { useDispatch } from "react-redux";
 import { login as storeLogin } from "../store/userSlice.js";
-import axios from "axios";
+import api from "../utils/api.js";
 
 const Login = () => {
   const [error, setError] = useState("");
@@ -22,36 +22,17 @@ const Login = () => {
     setSuccess("");
 
     try {
-      const { data: result } = await axios.post("/api/v1/users/login", data, {
-        headers: { "Content-Type": "application/json" },
-        withCredentials: true,
-      });
+      const res = await api.post("/v1/users/login", data);
+      const user = res.data?.data?.user;
 
-      const user = result?.data?.user;
-      if (!user) {
-        setError("Invalid server response.");
-        return;
-      }
+      if (!user) throw new Error("Invalid server response");
 
-      // Update Redux store
       dispatch(storeLogin(user));
+      setSuccess("Login successful!");
 
-      // Show success
-      setSuccess("User LoggedIn Successfully!");
-      console.log("SUCCESS SET!");
-
-      // Delay redirect so user sees success message
-      setTimeout(() => {
-        navigate("/");
-      }, 3000);
-    } catch (error) {
-      if (error.response) {
-        setError(error.response.data.message || "Login failed");
-      } else if (error.request) {
-        setError("No response from server. Please try again.");
-      } else {
-        setError(error.message || "An unexpected error occurred");
-      }
+      setTimeout(() => navigate("/"), 1500);
+    } catch (err) {
+      setError(err.response?.data?.message || "Login failed");
     }
   };
 

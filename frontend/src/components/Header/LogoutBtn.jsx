@@ -1,19 +1,19 @@
 import React from "react";
 import { logout } from "../../store/userSlice.js";
 import { useDispatch } from "react-redux";
-import axios from "axios";
 import Button from "../Button.jsx";
+
+import api from "../../utils/api.js";
 
 const LogoutBtn = () => {
   const dispatch = useDispatch();
 
   const logoutHandler = async () => {
     try {
-      await axios.post("/api/v1/users/logout", { withCredentials: true });
+      await api.post("/v1/users/logout");
     } catch (error) {
-      console.error("Logout API call failed:", error);
+      console.error("Logout failed:", error);
     } finally {
-      // Always logout from client side regardless of API response
       dispatch(logout());
     }
   };

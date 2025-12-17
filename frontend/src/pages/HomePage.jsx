@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { Cards, Container, Button } from "../components/index";
 import { useNavigate } from "react-router";
-import axios from "axios";
+import api from "../utils/api";
 import { setLoading, setPosts, setError, clearError } from "../store/postSlice";
 
 const HomePage = () => {
@@ -19,9 +19,7 @@ const HomePage = () => {
       dispatch(clearError());
 
       try {
-        const res = await axios.get("/api/v1/posts/active-post", {
-          withCredentials: true,
-        });
+        const res = await api.get("/v1/posts/active-post");
 
         dispatch(setPosts(res.data.data || []));
       } catch (err) {

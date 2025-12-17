@@ -1,10 +1,31 @@
 import asyncHandler from "../utils/asyncHandlerWrapper.js";
 import { ApiError } from "../utils/ApiError.js";
 import { User } from "../models/user.models.js";
-// import uploadOnCloudinary from "../utils/uploadOnCloudinary.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import jwt from "jsonwebtoken";
 
+// Helper: generate access and refresh tokens
+const generateTokens = async (userId) => {
+  const user = await User.findById(userId);
+
+  const accessToken = user.generateAccessToken();
+  const refreshToken = user.generateRefreshToken();
+
+  user.refreshToken = refreshToken;
+  await user.save({ validateBeforeSave: false });
+
+  return { accessToken, refreshToken };
+};
+
+// Cookie options
+const getCookieOptions = () => ({
+  httpOnly: true,
+  secure: process.env.NODE_ENV === "production",
+  sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+  maxAge: 1000 * 60 * 60 * 24, // 1 day
+});
+
+// REGISTER
 const userRegister = asyncHandler(async (req, res) => {
   const { fullName, username, email, password } = req.body;
 
@@ -36,18 +57,7 @@ const userRegister = asyncHandler(async (req, res) => {
     .json(new ApiResponse(201, createdUser, "User registered successfully!"));
 });
 
-const generateTokens = async (userId) => {
-  const user = await User.findById(userId);
-
-  const accessToken = user.generateAccessToken();
-  const refreshToken = user.generateRefreshToken();
-
-  user.refreshToken = refreshToken;
-  await user.save({ validateBeforeSave: false });
-
-  return { accessToken, refreshToken };
-};
-
+// LOGIN
 const userLogin = asyncHandler(async (req, res) => {
   const { username, email, password } = req.body;
 
@@ -73,16 +83,10 @@ const userLogin = asyncHandler(async (req, res) => {
     "-password -refreshToken"
   );
 
-  const cookieOptions = {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-  };
-
   return res
     .status(200)
-    .cookie("accessToken", accessToken, cookieOptions)
-    .cookie("refreshToken", refreshToken, cookieOptions)
+    .cookie("accessToken", accessToken, getCookieOptions())
+    .cookie("refreshToken", refreshToken, getCookieOptions())
     .json(
       new ApiResponse(
         200,
@@ -92,24 +96,22 @@ const userLogin = asyncHandler(async (req, res) => {
     );
 });
 
+// LOGOUT
 const userLogout = asyncHandler(async (req, res) => {
-  await User.findByIdAndUpdate(req.user._id, {
-    $unset: { refreshToken: 1 },
-  });
-
-  const cookieOptions = {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-  };
+  if (req.user?._id) {
+    await User.findByIdAndUpdate(req.user._id, {
+      $unset: { refreshToken: 1 },
+    });
+  }
 
   return res
     .status(200)
-    .clearCookie("accessToken", cookieOptions)
-    .clearCookie("refreshToken", cookieOptions)
+    .clearCookie("accessToken", getCookieOptions())
+    .clearCookie("refreshToken", getCookieOptions())
     .json(new ApiResponse(200, {}, "User logged out successfully"));
 });
 
+// ROTATE REFRESH TOKEN
 const rotateRefreshToken = asyncHandler(async (req, res) => {
   const incomingRefreshToken = req.cookies.refreshToken;
 
@@ -129,19 +131,14 @@ const rotateRefreshToken = asyncHandler(async (req, res) => {
 
   const { accessToken, refreshToken } = await generateTokens(user._id);
 
-  const cookieOptions = {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-  };
-
   return res
     .status(200)
-    .cookie("accessToken", accessToken, cookieOptions)
-    .cookie("refreshToken", refreshToken, cookieOptions)
+    .cookie("accessToken", accessToken, getCookieOptions())
+    .cookie("refreshToken", refreshToken, getCookieOptions())
     .json(new ApiResponse(200, {}, "Token refreshed successfully"));
 });
 
+// GET CURRENT USER
 const getCurrentUser = asyncHandler(async (req, res) => {
   const user = await User.findById(req.user._id).select(
     "-password -refreshToken"
@@ -151,24 +148,6 @@ const getCurrentUser = asyncHandler(async (req, res) => {
     .status(200)
     .json(new ApiResponse(200, { user }, "Current user fetched"));
 });
-
-// const getCurrentUser = asyncHandler(async (req, res) => {
-//   return res.status(200).json({
-//     statusCode: 200,
-//     data: {
-//       user: {
-//         _id: "12345",
-//         fullName: "Test User",
-//         username: "testuser",
-//         email: "test@example.com",
-//         profileImage: "https://via.placeholder.com/150",
-//         coverImage: "https://via.placeholder.com/600x200",
-//       },
-//     },
-//     message: "Current User fetched successfully!",
-//     success: true,
-//   });
-// });
 
 export {
   userRegister,

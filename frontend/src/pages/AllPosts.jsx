@@ -1,8 +1,8 @@
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Cards, Container } from "../components/index";
-import axios from "axios";
 import { setError, setPosts } from "../store/postSlice";
+import api from "../utils/api";
 
 const AllPosts = () => {
   const { posts, error } = useSelector((state) => state.post);
@@ -11,20 +11,18 @@ const AllPosts = () => {
   useEffect(() => {
     const fetchPosts = async () => {
       try {
-        const response = await axios.get("/api/v1/posts/all", {
-          withCredentials: true,
-        });
-        console.log(response);
+        const res = await api.get("/v1/posts/all");
 
-        const postList = response?.data?.data || [];
-
+        const postList = res?.data?.data || [];
         dispatch(setPosts(postList));
       } catch (err) {
         const msg =
-          err?.response?.data?.message || "Error fetching current posts";
+          err?.response?.data?.message ||
+          err.message ||
+          "Error fetching current posts";
 
         dispatch(setError(msg));
-        console.error("POST ERROR:", err);
+        console.error("POST FETCH ERROR:", err);
       }
     };
 

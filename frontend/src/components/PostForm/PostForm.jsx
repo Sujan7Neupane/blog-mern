@@ -9,7 +9,7 @@ import {
   addPost,
   updatePostInState,
 } from "../../store/postSlice";
-import axios from "axios";
+import api from "../../utils/api";
 
 const PostForm = ({ post }) => {
   const {
@@ -40,7 +40,7 @@ const PostForm = ({ post }) => {
     formData.append("content", data.content);
     formData.append("status", data.status);
 
-    if (data.image && data.image[0]) {
+    if (data.image?.[0]) {
       formData.append("featuredImage", data.image[0]);
     }
 
@@ -48,37 +48,27 @@ const PostForm = ({ post }) => {
       let result;
 
       if (post) {
-        const response = await axios.put(
-          `/api/v1/posts/update/${post._id}`,
-          formData,
-          {
-            headers: { "Content-Type": "multipart/form-data" },
-            withCredentials: true,
-          }
-        );
-        result = response.data.data;
+        const res = await api.put(`/v1/posts/update/${post._id}`, formData, {
+          headers: { "Content-Type": "multipart/form-data" },
+        });
+        result = res.data.data;
         dispatch(updatePostInState(result));
         setSuccess("Post updated successfully!");
       } else {
-        const response = await axios.post(
-          "/api/v1/posts/create-post",
-          formData,
-          {
-            headers: { "Content-Type": "multipart/form-data" },
-            withCredentials: true,
-          }
-        );
-        result = response.data.data;
+        const res = await api.post("/v1/posts/create-post", formData, {
+          headers: { "Content-Type": "multipart/form-data" },
+        });
+        result = res.data.data;
         dispatch(addPost(result));
         setSuccess("Post created successfully!");
       }
 
       setTimeout(() => navigate(`/post/${result._id}`), 1500);
     } catch (err) {
-      const errorMessage =
+      const message =
         err.response?.data?.message || err.message || "Something went wrong";
-      setLocalError(errorMessage);
-      dispatch(setError(errorMessage));
+      setLocalError(message);
+      dispatch(setError(message));
     } finally {
       dispatch(setLoading(false));
     }

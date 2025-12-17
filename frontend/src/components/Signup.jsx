@@ -4,7 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { useDispatch } from "react-redux";
 import { login as storeLogin } from "../store/userSlice.js";
-import axios from "axios";
+import api from "../utils/api.js";
 
 const Signup = () => {
   const [error, setError] = useState("");
@@ -32,8 +32,7 @@ const Signup = () => {
       formData.append("email", data.email);
       formData.append("password", data.password);
 
-      const response = await axios.post("/api/v1/users/register", formData, {
-        withCredentials: true,
+      const response = await api.post("/v1/users/register", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },

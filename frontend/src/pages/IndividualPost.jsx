@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
-import axios from "axios";
+
 import Container from "../components/Container";
 import Button from "../components/Button";
 import parse from "html-react-parser";
 import { useSelector } from "react-redux";
+import api from "../utils/api";
 
 const IndividualPost = () => {
   const { id } = useParams();
@@ -23,15 +24,17 @@ const IndividualPost = () => {
   console.log("INDIVIDUAL POST post:", post);
 
   useEffect(() => {
-    if (!id) return navigate("/");
+    if (!id) {
+      navigate("/");
+      return;
+    }
 
     const fetchPost = async () => {
       try {
         setLoading(true);
-        const response = await axios.get(`/api/v1/posts/p/${id}`, {
-          withCredentials: true,
-        });
-        setPost(response.data.data); // Store the post object
+
+        const res = await api.get(`/v1/posts/p/${id}`);
+        setPost(res.data.data);
       } catch (error) {
         console.error("Error fetching post:", error);
         navigate("/");
@@ -45,7 +48,7 @@ const IndividualPost = () => {
 
   const deletePost = async () => {
     try {
-      await axios.delete(`/api/v1/posts/delete/${post._id}`);
+      await api.delete(`/v1/posts/delete/${post._id}`);
       navigate("/");
     } catch (error) {
       console.error("Error deleting post:", error);
