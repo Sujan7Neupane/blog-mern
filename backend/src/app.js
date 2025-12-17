@@ -7,28 +7,19 @@ const app = express();
 /**
  * Parse allowed origins from env
  */
-const allowedOrigins = process.env.CORS_ORIGIN
-  ? process.env.CORS_ORIGIN.split(",")
-  : [];
+const allowedOrigins = process.env.CORS_ORIGIN.split(",");
 
 console.log(allowedOrigins);
 
 app.use(
   cors({
     origin: (origin, callback) => {
-      // Allow non-browser requests (Postman, server-to-server)
       if (!origin) return callback(null, true);
-
-      // Allow all origins in development (optional but useful)
-      if (process.env.NODE_ENV === "development") {
-        return callback(null, true);
-      }
-
       if (allowedOrigins.includes(origin)) {
-        return callback(null, true);
+        callback(null, true);
+      } else {
+        callback(new Error(`CORS blocked for origin: ${origin}`));
       }
-
-      return callback(new Error(`CORS blocked for origin: ${origin}`));
     },
     credentials: true,
   })
