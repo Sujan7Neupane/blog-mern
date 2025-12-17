@@ -10,7 +10,7 @@ const LogoutBtn = () => {
 
   const logoutHandler = async () => {
     try {
-      await api.post("/v1/users/logout");
+      await api.post("/users/logout");
     } catch (error) {
       console.error("Logout failed:", error);
     } finally {

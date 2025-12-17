@@ -22,7 +22,7 @@ const Login = () => {
     setSuccess("");
 
     try {
-      const res = await api.post("/v1/users/login", data);
+      const res = await api.post("/users/login", data);
       const user = res.data?.data?.user;
 
       if (!user) throw new Error("Invalid server response");

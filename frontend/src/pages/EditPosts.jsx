@@ -25,7 +25,7 @@ const EditPosts = () => {
       dispatch(clearError());
 
       try {
-        const res = await api.get(`/v1/posts/p/${id}`);
+        const res = await api.get(`/posts/p/${id}`);
         dispatch(setPost(res.data.data));
       } catch (err) {
         const msg =
@@ -46,7 +46,7 @@ const EditPosts = () => {
   // Handle post update
   const handleUpdate = async (formData) => {
     try {
-      const res = await api.put(`/v1/posts/update/${post._id}`, formData, {
+      const res = await api.put(`/posts/update/${post._id}`, formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },

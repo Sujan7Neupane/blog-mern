@@ -32,7 +32,7 @@ const Signup = () => {
       formData.append("email", data.email);
       formData.append("password", data.password);
 
-      const response = await api.post("/v1/users/register", formData, {
+      const response = await api.post("/users/register", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },

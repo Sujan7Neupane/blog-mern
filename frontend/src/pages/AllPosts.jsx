@@ -11,7 +11,7 @@ const AllPosts = () => {
   useEffect(() => {
     const fetchPosts = async () => {
       try {
-        const res = await api.get("/v1/posts/all");
+        const res = await api.get("/posts/all");
 
         const postList = res?.data?.data || [];
         dispatch(setPosts(postList));

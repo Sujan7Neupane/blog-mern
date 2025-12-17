@@ -14,7 +14,7 @@ function App() {
 
   const fetchCurrentUser = async () => {
     try {
-      const res = await api.get("/v1/users/current-user");
+      const res = await api.get("/users/current-user");
 
       const user = res?.data?.data?.user;
 

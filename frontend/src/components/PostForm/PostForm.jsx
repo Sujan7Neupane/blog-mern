@@ -48,14 +48,14 @@ const PostForm = ({ post }) => {
       let result;
 
       if (post) {
-        const res = await api.put(`/v1/posts/update/${post._id}`, formData, {
+        const res = await api.put(`/posts/update/${post._id}`, formData, {
           headers: { "Content-Type": "multipart/form-data" },
         });
         result = res.data.data;
         dispatch(updatePostInState(result));
         setSuccess("Post updated successfully!");
       } else {
-        const res = await api.post("/v1/posts/create-post", formData, {
+        const res = await api.post("/posts/create-post", formData, {
           headers: { "Content-Type": "multipart/form-data" },
         });
         result = res.data.data;

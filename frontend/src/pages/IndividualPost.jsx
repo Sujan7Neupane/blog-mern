@@ -33,7 +33,7 @@ const IndividualPost = () => {
       try {
         setLoading(true);
 
-        const res = await api.get(`/v1/posts/p/${id}`);
+        const res = await api.get(`/posts/p/${id}`);
         setPost(res.data.data);
       } catch (error) {
         console.error("Error fetching post:", error);
@@ -48,7 +48,7 @@ const IndividualPost = () => {
 
   const deletePost = async () => {
     try {
-      await api.delete(`/v1/posts/delete/${post._id}`);
+      await api.delete(`/posts/delete/${post._id}`);
       navigate("/");
     } catch (error) {
       console.error("Error deleting post:", error);

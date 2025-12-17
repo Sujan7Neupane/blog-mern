@@ -19,7 +19,7 @@ const HomePage = () => {
       dispatch(clearError());
 
       try {
-        const res = await api.get("/v1/posts/active-post");
+        const res = await api.get("/posts/active-post");
 
         dispatch(setPosts(res.data.data || []));
       } catch (err) {
